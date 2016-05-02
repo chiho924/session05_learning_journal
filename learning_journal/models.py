@@ -3,6 +3,10 @@ from sqlalchemy import (
     Index,
     Integer,
     Text,
+    String,
+    Unicode,
+    DateTime,
+    select,
     )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,14 +18,24 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
+import datetime
+
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 
+class Entry(Base):
+    __tablename__ = 'entries'
+    id = Column('id', Integer, primary_key=True)
+    title = Column('title', String(255), nullable=False, unique=True)
+    body = Column('body', Unicode)
+    created = Column('created', DateTime, default=datetime.datetime.now)
+    edited = Column('edited', DateTime, default=datetime.datetime.now)
 
-class MyModel(Base):
-    __tablename__ = 'models'
-    id = Column(Integer, primary_key=True)
-    name = Column(Text)
-    value = Column(Integer)
+    @classmethod
+    def all(cls):
+        return select([Entry.id, Entry.title, Entry.body, Entry.created, Entry.edited]).select_from(Entry).order_by(Entry.edited.desc())
 
-Index('my_index', MyModel.name, unique=True, mysql_length=255)
+    @classmethod
+    def by_id(cls, given_id):
+        return select([Entry.id, Entry.title, Entry.body, Entry.created, Entry.edited]).select_from(Entry).where(Entry.id == given_id)
+

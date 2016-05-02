@@ -13,7 +13,6 @@ from pyramid.scripts.common import parse_vars
 
 from ..models import (
     DBSession,
-    MyModel,
     Base,
     Entry,
     )
@@ -37,8 +36,6 @@ def main(argv=sys.argv):
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
     with transaction.manager:
-        #model = MyModel(name='one', value=1)
-        #DBSession.add(model)
         entry_model_1 = Entry(id=1, title='abc', body=b'defgh')
         entry_model_2 = Entry(id=2, title='def', body=b'wxyzabc')
         DBSession.add(entry_model_1)
